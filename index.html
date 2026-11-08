@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>Broadband Comparer — Bengaluru</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#F4F2EC; --surface:#FFFFFF; --surface2:#ECE9DF; --ink:#171A15; --muted:#5C6257;
+    --line:#DAD5C5; --accent:#0E6B4F; --accent-ink:#FFFFFF; --signal:#D94F10; --gold:#9A7400;
+    --jio:#0A5CAB; --airtel:#C8102E; --act:#0E6B4F; --bsnl:#7A5C00; --hathway:#5B3E99;
+    --chip:#ECE9DF; --good:#0E6B4F; --warn:#9A7400; --shadow:0 1px 2px rgba(23,26,21,.06),0 8px 24px rgba(23,26,21,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#111310; --surface:#1A1D18; --surface2:#22251F; --ink:#EDEBE2; --muted:#A6AB9E;
+      --line:#2F332B; --accent:#35C48F; --accent-ink:#0B1512; --signal:#FF7A45; --gold:#D9A92C;
+      --jio:#5EA3E8; --airtel:#FF6B7A; --act:#35C48F; --bsnl:#D9A92C; --hathway:#B79CED;
+      --chip:#22251F; --good:#35C48F; --warn:#D9A92C; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} *{transition:none!important} }
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.55}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+  a{color:var(--accent);text-underline-offset:3px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+  /* meta strip */
+  .meta{border-bottom:1px solid var(--line);font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted)}
+  .meta .wrap{display:flex;flex-wrap:wrap;gap:6px 22px;padding-top:10px;padding-bottom:10px}
+  .meta b{color:var(--ink);font-weight:600}
+  /* hero */
+  .hero{padding:44px 0 8px}
+  .hero h1{font-size:clamp(34px,6vw,58px);line-height:1.04;margin:0 0 14px;font-weight:700;letter-spacing:-.02em;max-width:16ch}
+  .hero h1 em{font-style:normal;color:var(--accent)}
+  .lede{font-size:clamp(17px,2.4vw,20px);color:var(--muted);max-width:62ch;margin:0 0 26px}
+  .hero-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:stretch}
+  @media (max-width:760px){.hero-grid{grid-template-columns:1fr}}
+  .pick-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+  .pick-card h2{margin:0 0 4px;font-size:17px}
+  .pick-card p{margin:0 0 14px;color:var(--muted);font-size:14px}
+  label.flabel{display:block;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  select,input[type=range]{width:100%}
+  select{appearance:none;background:var(--surface2);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:inherit;font-size:15px;padding:11px 36px 11px 12px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+  .locality-note{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px;font-size:14px}
+  .locality-note .tier{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;padding:2px 8px;border-radius:99px;background:var(--chip);margin-bottom:6px}
+  .stat-card{background:var(--ink);color:var(--bg);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px}
+  .stat-card .row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid color-mix(in srgb, var(--bg) 22%, transparent);padding-bottom:10px}
+  .stat-card .row:last-child{border-bottom:0;padding-bottom:0}
+  .stat-card .k{font-size:13px;opacity:.75}
+  .stat-card .v{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:15px;text-align:right}
+  /* sections */
+  section{padding:38px 0 6px}
+  .sec-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;margin-bottom:6px}
+  .sec-head h2{font-size:clamp(24px,3.6vw,32px);margin:0;letter-spacing:-.01em}
+  .sec-head .no{font-family:"IBM Plex Mono",monospace;color:var(--signal);font-weight:600}
+  .sec-sub{color:var(--muted);max-width:68ch;margin:0 0 20px}
+  /* controls */
+  .controls{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  @media (max-width:900px){.controls{grid-template-columns:1fr 1fr}}
+  @media (max-width:520px){.controls{grid-template-columns:1fr}}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:99px;padding:7px 13px;font:inherit;font-size:13.5px;cursor:pointer}
+  .chip[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+  .chip:focus-visible,button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+  input[type=range]{accent-color:var(--accent)}
+  .range-val{font-family:"IBM Plex Mono",monospace;font-weight:600}
+  .toggle{display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer}
+  .toggle input{width:20px;height:20px;accent-color:var(--accent)}
+  /* verdict */
+  .verdict{margin-top:18px;border:1.5px solid var(--accent);border-radius:14px;background:var(--surface);padding:18px 20px;display:flex;gap:16px;align-items:flex-start}
+  .verdict .badge{flex:none;background:var(--accent);color:var(--accent-ink);font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.06em;padding:5px 10px;border-radius:6px;margin-top:3px}
+  .verdict h3{margin:0 0 4px;font-size:18px}
+  .verdict p{margin:0;color:var(--muted);font-size:14.5px}
+  /* plan cards */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px}
+  @media (max-width:980px){.grid{grid-template-columns:1fr 1fr}}
+  @media (max-width:620px){.grid{grid-template-columns:1fr}}
+  .plan{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+  .plan.best{border-color:var(--accent);border-width:1.5px}
+  .plan-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .isp{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px}
+  .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .best-tag{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;color:var(--accent);border:1px solid var(--accent);border-radius:99px;padding:2px 9px}
+  .local-tag{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--gold);border:1px solid var(--gold);border-radius:99px;padding:2px 9px}
+  .speed{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1}
+  .speed small{font-size:15px;color:var(--muted);font-weight:500}
+  .price{display:flex;align-items:baseline;gap:8px}
+  .price .amt{font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:600}
+  .price .per{color:var(--muted);font-size:13px}
+  .price .rpm{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--muted)}
+  .facts{list-style:none;margin:0;padding:10px 0 0;border-top:1px dashed var(--line);display:grid;gap:5px;font-size:13.5px;color:var(--muted)}
+  .facts b{color:var(--ink);font-weight:600}
+  .plan button{margin-top:auto;background:var(--surface2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+  .plan button:hover{border-color:var(--accent);color:var(--accent)}
+  .empty{background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--muted)}
+  /* value bars */
+  .bars{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+  .bar-row{display:grid;grid-template-columns:170px 1fr 74px;gap:12px;align-items:center;padding:6px 0;font-size:13.5px}
+  @media (max-width:620px){.bar-row{grid-template-columns:110px 1fr 64px}}
+  .bar-track{height:12px;background:var(--surface2);border-radius:99px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:99px}
+  .bar-row .val{font-family:"IBM Plex Mono",monospace;text-align:right;font-size:12.5px}
+  /* calculator */
+  .calc{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:760px){.calc{grid-template-columns:1fr}}
+  .calc .box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+  .calc table{width:100%;border-collapse:collapse;font-size:14.5px}
+  .calc td{padding:8px 0;border-bottom:1px dashed var(--line)}
+  .calc td:last-child{text-align:right;font-family:"IBM Plex Mono",monospace;font-weight:600}
+  .calc tr:last-child td{border-bottom:0;font-size:16px}
+  .note{font-size:13px;color:var(--muted)}
+  /* coverage */
+  .cov{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media (max-width:980px){.cov{grid-template-columns:1fr 1fr}}
+  @media (max-width:620px){.cov{grid-template-columns:1fr}}
+  .cov-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .cov-card h3{margin:0 0 2px;font-size:16px}
+  .cov-card .area{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);margin-bottom:10px}
+  .cov-row{display:flex;justify-content:space-between;font-size:13.5px;padding:4px 0;border-top:1px dashed var(--line)}
+  .stars{font-family:"IBM Plex Mono",monospace;letter-spacing:1px}
+  .s3{color:var(--good)} .s2{color:var(--warn)} .s1{color:var(--signal)} .s0{color:var(--muted)}
+  /* problems */
+  .prob-list{display:grid;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+  .prob{display:grid;grid-template-columns:64px 1.4fr 1.6fr 1fr;gap:18px;padding:20px;border-bottom:1px solid var(--line);align-items:start}
+  .prob:last-child{border-bottom:0}
+  @media (max-width:900px){.prob{grid-template-columns:48px 1fr}.prob .build,.prob .ship{grid-column:2}}
+  .prob .num{font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:600;color:var(--signal)}
+  .prob h3{margin:0 0 5px;font-size:17px}
+  .prob p{margin:0;font-size:14px;color:var(--muted)}
+  .prob p b{color:var(--ink)}
+  .prob .src{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);display:block;margin-top:7px}
+  .status{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;margin-bottom:7px}
+  .status.live{background:var(--accent);color:var(--accent-ink)}
+  .status.next{background:var(--chip);color:var(--gold);border:1px solid var(--gold)}
+  .status.queue{background:var(--chip);color:var(--muted);border:1px solid var(--line)}
+  .repo{font-family:"IBM Plex Mono",monospace;font-size:12.5px;word-break:break-all}
+  /* footer */
+  footer{margin-top:44px;border-top:1px solid var(--line);padding:26px 0 40px;color:var(--muted);font-size:13.5px}
+  footer h2{color:var(--ink);font-size:16px;margin:0 0 10px}
+  footer ul{margin:0 0 18px;padding-left:18px}
+  footer li{margin:4px 0}
+  .foot-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+  @media (max-width:700px){.foot-grid{grid-template-columns:1fr}}
+  .copybtn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:11px 18px;font:inherit;font-weight:600;cursor:pointer}
+  .copyrow{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:16px}
+  .copymsg{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--accent)}
+</style>
+</head>
+<body>
+
+<div class="meta"><div class="wrap">
+  <span><b>Build 01</b> · Bengaluru Problems series</span>
+  <span>Plan snapshot: <b>9 Nov 2026</b></span>
+  <span>Prices ex-GST unless stated</span>
+  <span>By <b>Tanush R</b> · Building in public</span>
+</div></div>
+
+<header class="hero"><div class="wrap">
+  <h1>Broadband, compared the <em>Bengaluru way</em>.</h1>
+  <p class="lede">On r/bangalore, the same question loops every week: ACT, Airtel or Jio, and why does the answer change two streets away? This comparer prices 16 real plans, adjusts for your locality, and shows the true 12-month cost, GST and installation included. No plan is “best” everywhere in this city. Yours depends on your building.</p>
+  <div class="hero-grid">
+    <div class="pick-card">
+      <h2>Start with where you live</h2>
+      <p>Coverage in Bengaluru is building-level. Pick your locality and every result below re-ranks around it.</p>
+      <label class="flabel" for="locality">Your locality</label>
+      <select id="locality"></select>
+      <div class="locality-note" id="localityNote"></div>
+    </div>
+    <div class="stat-card" aria-label="Snapshot facts">
+      <div class="row"><span class="k">Cheapest 100 Mbps</span><span class="v">₹699/mo · Jio &amp; Hathway</span></div>
+      <div class="row"><span class="k">Best value at 300 Mbps</span><span class="v">₹4.5/Mbps · ACT</span></div>
+      <div class="row"><span class="k">ACT outage reports, Bengaluru (past 15 days, istheservicedown.in)</span><span class="v">129 reports</span></div>
+      <div class="row"><span class="k">Golden rule from Reddit threads</span><span class="v">Ask your neighbours, not the sales rep</span></div>
+    </div>
+  </div>
+</div></header>
+
+<main class="wrap">
+
+  <section id="comparer" aria-labelledby="comparer-h">
+    <div class="sec-head"><span class="no">01</span><h2 id="comparer-h">The comparer</h2></div>
+    <p class="sec-sub">Filter by how your home actually uses the internet. “Unlimited” on Jio and Airtel means no hard cap in these listings; ACT plans carry the data caps shown. Speeds are advertised maximums.</p>
+
+    <div class="controls">
+      <div>
+        <label class="flabel">Who is this for?</label>
+        <div class="chips" id="presetChips" role="group" aria-label="Usage preset">
+          <button class="chip" data-preset="solo" aria-pressed="false">Solo WFH</button>
+          <button class="chip" data-preset="couple" aria-pressed="true">Couple + streaming</button>
+          <button class="chip" data-preset="family" aria-pressed="false">Family of 4 · 4K</button>
+          <button class="chip" data-preset="creator" aria-pressed="false">Gamer / creator</button>
+        </div>
+      </div>
+      <div>
+        <label class="flabel" for="budget">Max budget · <span class="range-val" id="budgetVal">₹1,000</span>/mo</label>
+        <input type="range" id="budget" min="399" max="3999" step="50" value="1000" />
+        <p class="note" style="margin:6px 0 0">Drag up to include faster tiers.</p>
+      </div>
+      <div>
+        <label class="flabel" for="sort">Sort plans by</label>
+        <select id="sort">
+          <option value="value">Best value (₹ per Mbps)</option>
+          <option value="price">Lowest price</option>
+          <option value="speed">Fastest speed</option>
+        </select>
+      </div>
+      <div>
+        <label class="flabel">Extras</label>
+        <label class="toggle"><input type="checkbox" id="ottOnly" /> Only plans with bundled OTT</label>
+        <p class="note" style="margin:8px 0 0">OTT bundles change often. Treat them as a bonus, not the reason to buy.</p>
+      </div>
+    </div>
+
+    <div class="verdict" id="verdict" role="status"></div>
+
+    <div class="grid" id="planGrid"></div>
+    <div class="copyrow">
+      <button class="copybtn" id="copyBtn">Copy my top 3 as text</button>
+      <span class="copymsg" id="copyMsg" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <section aria-labelledby="value-h">
+    <div class="sec-head"><span class="no">02</span><h2 id="value-h">Value, in rupees per Mbps</h2></div>
+    <p class="sec-sub">Lower is better. This is the single number sales pages never show you, calculated from the same 16 plans above.</p>
+    <div class="bars" id="valueBars"></div>
+  </section>
+
+  <section aria-labelledby="calc-h">
+    <div class="sec-head"><span class="no">03</span><h2 id="calc-h">True cost calculator</h2></div>
+    <p class="sec-sub">Tap “True cost” on any plan above. Headline prices exclude 18% GST, and installation is where the first bill surprises people.</p>
+    <div class="calc">
+      <div class="box">
+        <label class="flabel" for="calcPlan">Plan</label>
+        <select id="calcPlan"></select>
+        <p class="note" style="margin-top:12px">Installation used here: Jio and Airtel ₹0 on most new Bengaluru connections, ACT ₹650, BSNL ₹500, Hathway ₹500. Providers frequently waive it on 6 or 12-month prepay, so confirm before paying. Router: free with Jio and Airtel on these plans; ACT and others vary by offer.</p>
+      </div>
+      <div class="box" aria-live="polite">
+        <table id="calcTable"></table>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="cov-h">
+    <div class="sec-head"><span class="no">04</span><h2 id="cov-h">Coverage by locality</h2></div>
+    <p class="sec-sub">Ratings summarise published Bengaluru coverage guides: ●●● strong, ●●○ available but patchy by building, ●○○ limited. Always check your exact apartment, not just the locality name. Core IT corridor areas (Koramangala, HSR, Indiranagar, BTM, Bellandur) have three-way fiber competition; the city’s edge often has one real choice.</p>
+    <div class="cov" id="covGrid"></div>
+  </section>
+
+  <section aria-labelledby="problems-h">
+    <div class="sec-head"><span class="no">05</span><h2 id="problems-h">From r/bangalore: 10 more problems, 10 small builds</h2></div>
+    <p class="sec-sub">The broadband question was problem one. These are the next ten, picked from recurring r/bangalore and r/bangalorerentals threads, each scoped to a tool one builder can actually ship. Every build gets a public GitHub repo and a page on the website, same as this one.</p>
+    <div class="prob-list" id="probList"></div>
+    <div class="copyrow">
+      <a class="copybtn" style="text-decoration:none" href="https://github.com/Tanush-7" target="_blank" rel="noopener">Follow the builds on GitHub</a>
+      <span class="note">Existing public work: <a href="https://github.com/Tanush-7/india-car-market" target="_blank" rel="noopener">india-car-market</a> · live at <a href="https://tanush-7.github.io/india-car-market/" target="_blank" rel="noopener">CarScope India</a></span>
+    </div>
+  </section>
+
+</main>
+
+<footer><div class="wrap">
+  <div class="foot-grid">
+    <div>
+      <h2>Sources for plan data (snapshot, 9 Nov 2026)</h2>
+      <ul>
+        <li><a href="https://comparekaro.download/tools/broadband-compare/" target="_blank" rel="noopener">CompareKaro broadband comparison</a> (auto-updated 19 Oct 2026): plan prices, caps, ₹/Mbps.</li>
+        <li><a href="https://www.gadgets360.com/broadband-plans/jio-bangalore?from=gea" target="_blank" rel="noopener">Gadgets 360: Jio broadband plans in Bangalore</a>.</li>
+        <li><a href="https://www.gizbot.com/broadband-plans/act-fibernet-in-bengaluru/" target="_blank" rel="noopener">Gizbot: ACT Fibernet plans in Bengaluru</a> (updated 8 Nov 2026).</li>
+        <li><a href="https://www.gizbot.com/broadband-plans/airtel/" target="_blank" rel="noopener">Gizbot: Airtel broadband plans</a>, incl. Bangalore table (updated 8 Nov 2026).</li>
+        <li><a href="https://blogs.mittiyo.com/mittiyo/internet-broadband-bengaluru-localities/" target="_blank" rel="noopener">Mittiyo: Internet and broadband availability across Bengaluru localities</a> (coverage tiers).</li>
+        <li><a href="https://www.moneycontrol.com/news/trends/bengaluru-residents-viral-rant-triggers-debate-on-city-s-failing-infrastructure-can-t-take-it-anymore-13765112.html" target="_blank" rel="noopener">Moneycontrol: the viral r/bangalore infrastructure thread</a> (traffic, power cuts).</li>
+        <li><a href="https://istheservicedown.in/problems/act-india/map" target="_blank" rel="noopener">istheservicedown.in: ACT outage map</a> (129 Bengaluru reports in the past 15 days, as listed at snapshot time).</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Read this before you pay anyone</h2>
+      <ul>
+        <li>Prices move and differ by circle and building. Verify on the provider’s site for your pincode before paying.</li>
+        <li>The most reliable signal in every Reddit thread is boring: ask two neighbours in your own building which ISP they use and how fast tickets close.</li>
+        <li>ACT’s equal upload and download speeds matter if you upload video or large files; headline download speed alone hides that.</li>
+        <li>Never pay a deposit or installation fee to an individual’s personal account. Pay only inside the provider’s app or site.</li>
+      </ul>
+    </div>
+  </div>
+  <p>Broadband Comparer · Build 01 of the Bengaluru Problems series by Tanush R. Data is a dated snapshot, not a live feed.</p>
+</div></footer>
+
+<script>
+var ISP = {
+  jio:{name:"JioFiber", color:"var(--jio)", install:0},
+  airtel:{name:"Airtel Xstream", color:"var(--airtel)", install:0},
+  act:{name:"ACT Fibernet", color:"var(--act)", install:650},
+  bsnl:{name:"BSNL Bharat Fibre", color:"var(--bsnl)", install:500},
+  hathway:{name:"Hathway", color:"var(--hathway)", install:500}
+};
+var PLANS = [
+  {id:"jio399", isp:"jio", plan:"JioFiber 30", price:399, speed:30, data:"Unlimited", ott:"—", router:"Free"},
+  {id:"bsnl449", isp:"bsnl", plan:"Fibre Basic", price:449, speed:30, data:"3,300 GB", ott:"—", router:"Not incl."},
+  {id:"air499", isp:"airtel", plan:"Xstream 40", price:499, speed:40, data:"Unlimited", ott:"—", router:"Free"},
+  {id:"act599", isp:"act", plan:"ACT Swift", price:599, speed:75, data:"500 GB", ott:"—", router:"Varies"},
+  {id:"jio699", isp:"jio", plan:"JioFiber 100", price:699, speed:100, data:"Unlimited", ott:"—", router:"Free"},
+  {id:"hat699", isp:"hathway", plan:"Hathway 100", price:699, speed:100, data:"Unlimited", ott:"—", router:"Varies"},
+  {id:"act749", isp:"act", plan:"ACT Sprint", price:749, speed:100, data:"1 TB", ott:"—", router:"Varies"},
+  {id:"air799", isp:"airtel", plan:"Xstream 100", price:799, speed:100, data:"Unlimited", ott:"—", router:"Free"},
+  {id:"jio899", isp:"jio", plan:"JioFiber Popular", price:899, speed:100, data:"Unlimited", ott:"JioCinema, SonyLIV", router:"Free"},
+  {id:"act999", isp:"act", plan:"ACT Storm", price:999, speed:150, data:"1.5 TB", ott:"ACT Stream TV", router:"Varies"},
+  {id:"jio999", isp:"jio", plan:"JioFiber 150", price:999, speed:150, data:"Unlimited", ott:"OTT bundle", router:"Free"},
+  {id:"air999", isp:"airtel", plan:"Xstream 200", price:999, speed:200, data:"Unlimited", ott:"Prime, Hotstar, ZEE5", router:"Free"},
+  {id:"act1349", isp:"act", plan:"ACT Incredible", price:1349, speed:300, data:"3 TB", ott:"ACT Stream TV", router:"Varies"},
+  {id:"jio1499", isp:"jio", plan:"JioFiber 300", price:1499, speed:300, data:"Unlimited", ott:"OTT bundle", router:"Free"},
+  {id:"air1599", isp:"airtel", plan:"Xstream 300", price:1599, speed:300, data:"Unlimited", ott:"Netflix Basic, Prime, Hotstar", router:"Free"},
+  {id:"jio3999", isp:"jio", plan:"JioFiber 1 Gbps", price:3999, speed:1000, data:"Unlimited", ott:"Netflix, Prime + more", router:"Free"}
+];
+var PRESETS = {
+  solo:{min:50, label:"Solo WFH", why:"50–100 Mbps covers calls, cloud docs and one 4K stream with room to spare. Paying for 300 Mbps alone is paying for a number, not an experience."},
+  couple:{min:100, label:"Couple + streaming", why:"Two people working and streaming at once is where 40 Mbps plans start to stutter. 100–150 Mbps is the honest sweet spot for most Bengaluru flats."},
+  family:{min:150, label:"Family of 4 · 4K", why:"Four people, two TVs and a console downloading game updates will eat a 100 Mbps line at 8 pm. Start at 150 Mbps and prefer unlimited data."},
+  creator:{min:300, label:"Gamer / creator", why:"At this level upload speed matters as much as download. ACT’s symmetric fiber is the quiet advantage; check upload before you buy, not after."}
+};
+var LOCALITIES = [
+  {name:"Koramangala", tier:"Tier 1 · 3+ fiber ISPs", cov:{act:3,airtel:3,jio:3,bsnl:2,hathway:2}, note:"ACT’s home turf: it built its Bengaluru backbone through the core city and IT corridors like this one. All three majors compete here, so negotiate."},
+  {name:"HSR Layout", tier:"Tier 1 · 3+ fiber ISPs", cov:{act:3,airtel:3,jio:3,bsnl:2,hathway:2}, note:"Strong three-way coverage. ACT and Airtel are both safe picks; building-level wiring decides the winner."},
+  {name:"Indiranagar", tier:"Tier 1 · 3+ fiber ISPs", cov:{act:3,airtel:3,jio:3,bsnl:2,hathway:1}, note:"Mature fiber across the core city. Older independent houses sometimes need a fresh drop, so book installation before your move-in weekend."},
+  {name:"BTM Layout", tier:"Tier 1 · 3+ fiber ISPs", cov:{act:3,airtel:3,jio:2,bsnl:2,hathway:2}, note:"ACT and Airtel both run deep here. Jio is present but thinner in older pockets."},
+  {name:"Bellandur / ORR", tier:"Tier 1 · 3+ fiber ISPs", cov:{act:3,airtel:3,jio:3,bsnl:1,hathway:1}, note:"Gated communities on the ORR are usually pre-wired for two or three ISPs. Ask your society office which ones, that list is the real coverage map."},
+  {name:"Whitefield (core)", tier:"Tier 1 · 3+ fiber ISPs", cov:{act:3,airtel:3,jio:3,bsnl:2,hathway:1}, note:"Core Whitefield near ITPL is well served, and ACT markets Whitefield heavily. The outskirts are a different story, see Outer Sarjapur."},
+  {name:"Marathahalli", tier:"Tier 1 · 3+ fiber ISPs", cov:{act:3,airtel:2,jio:3,bsnl:2,hathway:2}, note:"Dense rental belt with all majors present. PGs and shared flats: confirm the plan is in your name before paying a landlord’s markup."},
+  {name:"Electronic City", tier:"Tier 1–2 · building-dependent", cov:{act:2,airtel:3,jio:2,bsnl:2,hathway:1}, note:"Airtel runs deep into Electronic City. Large tech-park-adjacent societies are fine; standalone buildings vary."},
+  {name:"JP Nagar / Jayanagar", tier:"Tier 1–2 · building-dependent", cov:{act:3,airtel:2,jio:2,bsnl:2,hathway:2}, note:"ACT is a safe bet in the south Bengaluru core. Hathway’s cable-fiber hybrid is also solid in older dense neighbourhoods nearby."},
+  {name:"Hebbal / North Bengaluru", tier:"Tier 2 · 2 ISPs typical", cov:{act:2,airtel:3,jio:3,bsnl:2,hathway:1}, note:"Airtel and Jio lead in the north. ACT coverage gets patchier past the ring road, verify your street."},
+  {name:"Yelahanka", tier:"Tier 3 · limited", cov:{act:1,airtel:2,jio:2,bsnl:2,hathway:0}, note:"Newer layouts here can have a single fiber option, and residents have publicly waited on Airtel while only BSNL served the street. Get the installation date in writing."},
+  {name:"Outer Sarjapur Rd (beyond Carmelaram)", tier:"Tier 3 · limited", cov:{act:1,airtel:1,jio:2,bsnl:1,hathway:0}, note:"The classic Bengaluru trap: a new flat, one ISP, no leverage. If fiber is absent, Jio AirFiber (5G fixed wireless, ₹599–899) is the stopgap, with signal-dependent speeds."}
+];
+var COV_EXTRA = [
+  {name:"Malleshwaram / Banashankari", area:"West & South core", note:"Hathway’s long-standing cable-fiber network performs well in these dense, older neighbourhoods.", cov:{act:2,airtel:2,jio:2,bsnl:2,hathway:3}},
+  {name:"Sarjapur Road (inner, to Wipro Jn.)", area:"South-East corridor", note:"Inner Sarjapur counts as Tier 1. Coverage falls off sharply past Carmelaram, which is why this page splits the road in two.", cov:{act:3,airtel:2,jio:3,bsnl:1,hathway:1}},
+  {name:"Devanahalli / Hoskote side", area:"Far periphery", note:"Jio and Airtel are pushing fiber outward, but consistency complaints cluster here. A 5G fixed-wireless backup is worth pricing in.", cov:{act:0,airtel:1,jio:2,bsnl:2,hathway:0}}
+];
+var PROBLEMS = [
+  {n:"01", title:"Broadband confusion", src:"r/bangalore · recurring “ACT vs Airtel vs Jio?” threads", reddit:"Every week someone asks which ISP to pick, and every thread lands on the same answer: it depends on your building, and nobody publishes the true cost in one place.", build:"This comparer: 16 real plans, locality-adjusted, with GST-inclusive 12-month costs.", repo:"broadband-comparer", status:"live", statusLabel:"LIVE · THIS PAGE"},
+  {n:"02", title:"The deposit hostage problem", src:"r/bangalorerentals · BTM Layout and HSR Layout cases", reddit:"Tenants who gave notice and handed back flats in good condition report landlords going silent on deposits, while new tenants are asked for 6–10 months upfront. One post put it plainly: “We need some kind of app to rate rental properties.”", build:"Deposit Shield: rental-agreement clause checker, move-in/move-out photo evidence kit, and a dated deposit-recovery notice you can send the day the money is late.", repo:"bengaluru-deposit-shield", status:"next", statusLabel:"NEXT BUILD"},
+  {n:"03", title:"Fake listings & advance scams", src:"r/bangalorerentals · Indiranagar, ₹20,000 advance case", reddit:"A tenant paid ₹20,000 advance on a NoBroker listing, then the owner pushed move-in by 20 days and refused a refund, calling it a non-refundable token.", build:"Listing Verifier: paste a listing, get a red-flag score: price vs locality median, advance-before-visit demands, stock-photo checks, token-money wording traps.", repo:"blr-rent-scam-check", status:"queue", statusLabel:"QUEUED"},
+  {n:"04", title:"ORR commute roulette", src:"r/bangalore · Silk Board to Mahadevpura threads", reddit:"The viral thread: a lifelong Bengalurean tried cab, three metros, bus, car and bike on the ORR and concluded every mode fails the same way. Peak speeds run 14–18 km/h.", build:"Leave-By Calculator: pick your ORR stretch and office start time, get the latest departure that survives a bad day, not an average day.", repo:"orr-leave-by", status:"queue", statusLabel:"QUEUED"},
+  {n:"05", title:"BESCOM cuts in the middle of work", src:"r/bangalore · power-cut comments on the viral thread", reddit:"“Waiting 3+ hours in the middle of a workday for power. Maintenance happens randomly in the day, and still there is a 10–30 minute cut almost every day.”", build:"Power-Cut Logger + UPS Sizer: log cuts by locality to spot patterns, and size a UPS/inverter from your actual WFH load instead of a salesman’s guess.", repo:"blr-powercut-log", status:"queue", statusLabel:"QUEUED"},
+  {n:"06", title:"Tanker water & hard water", src:"r/bangalore · water threads, peripheral layouts", reddit:"Peripheral Bengaluru runs on tankers: roughly 40–50% of homes there depend on them in summer, prices spike exactly when supply dips, and hard water quietly kills geysers and washing machines.", build:"Tanker Tracker: locality-wise price log per 1,000 litres so you can tell a fair quote from a scarcity markup, plus a TDS explainer for your building’s water.", repo:"blr-tanker-tracker", status:"queue", statusLabel:"QUEUED"},
+  {n:"07", title:"Potholes & endless road cuts", src:"r/bangalore · roads, white-topping & ORR metro work", reddit:"Roads are the first complaint in nearly every thread: dug up for pipelines, narrowed by metro work, patched badly, then dug up again by a different agency.", build:"Pothole Reporter: one photo plus location becomes a correctly-addressed GBA/BBMP complaint draft, with the follow-up dates tracked for you.", repo:"blr-pothole-report", status:"queue", statusLabel:"QUEUED"},
+  {n:"08", title:"One heavy rain, flooded street", src:"r/bangalore · monsoon threads", reddit:"The city’s lakes were built connected; drains are now blocked or built over, so one downpour floods the same underpasses and low roads every single year.", build:"Flood-Route Checker: the known waterlogging points by corridor in one checkable list, so a rainy-day route decision takes ten seconds.", repo:"blr-flood-routes", status:"queue", statusLabel:"QUEUED"},
+  {n:"09", title:"Garbage black spots", src:"r/bangalore · civic complaint threads", reddit:"The city generates roughly 5,000–6,000 tonnes of waste a day. Segregation rules exist; the corner black spot on your street exists too, and reporting it feels pointless.", build:"Black Spot Board: map recurring dumping spots by locality with photo proof over time, plus your ward’s actual pickup schedule.", repo:"blr-garbage-spots", status:"queue", statusLabel:"QUEUED"},
+  {n:"10", title:"Dust & AQI creeping up", src:"r/bangalore · Indiranagar pollution thread, Nov 2026", reddit:"An Indiranagar resident’s post about traffic dust and air quality, serious enough that he is weighing leaving India, restarted the debate this month. Winter AQI now sits at 100–130+.", build:"AQI Run Planner: locality-level AQI with a simple go / go-early / skip call for your morning run or ride, instead of a raw number you have to interpret.", repo:"blr-aqi-planner", status:"queue", statusLabel:"QUEUED"},
+  {n:"11", title:"The complaint black hole", src:"r/bangalore · 112 and civic helpline threads", reddit:"Residents describe calling 112 about noise and blockages, getting a callback hours later asking if it was resolved, saying no, and watching the ticket die anyway. The city has also run six years without an elected civic body.", build:"Complaint Tracker: one timeline across GBA/BBMP, BESCOM and BWSSB tickets, with escalation dates and a ready summary when a complaint stalls.", repo:"blr-complaint-tracker", status:"queue", statusLabel:"QUEUED"}
+];
+
+var state = { preset:"couple", budget:1000, sort:"value", ottOnly:false, locality:LOCALITIES[0], calcId:"air999" };
+function $(id){ return document.getElementById(id); }
+function inr(n){ return "₹" + Math.round(n).toLocaleString("en-IN"); }
+function rpm(p){ return p.price / p.speed; }
+function stars(n){
+  if(n===3) return '<span class="stars s3">●●●</span>';
+  if(n===2) return '<span class="stars s2">●●○</span>';
+  if(n===1) return '<span class="stars s1">●○○</span>';
+  return '<span class="stars s0">—</span>';
+}
+function filtered(){
+  var min = PRESETS[state.preset].min;
+  var list = PLANS.filter(function(p){
+    return p.price <= state.budget && (!state.ottOnly || p.ott !== "—");
+  });
+  list.sort(function(a,b){
+    if(state.sort==="price") return a.price-b.price;
+    if(state.sort==="speed") return b.speed-a.speed;
+    return rpm(a)-rpm(b);
+  });
+  return {list:list, min:min};
+}
+function recommend(list){
+  var min = PRESETS[state.preset].min;
+  var cov = state.locality.cov;
+  var pool = list.filter(function(p){ return p.speed >= min && (cov[p.isp]||0) >= 2; });
+  if(!pool.length) pool = list.filter(function(p){ return p.speed >= min; });
+  if(!pool.length) pool = list.slice();
+  pool.sort(function(a,b){
+    var ca = (cov[a.isp]||0), cb = (cov[b.isp]||0);
+    if(cb!==ca) return cb-ca;
+    return rpm(a)-rpm(b);
+  });
+  return pool[0];
+}
+function render(){
+  var f = filtered(), list = f.list;
+  var rec = list.length ? recommend(list) : null;
+  /* verdict */
+  if(rec){
+    $("verdict").innerHTML = '<span class="badge">PICK FOR YOU</span><div><h3>' +
+      ISP[rec.isp].name + " · " + rec.speed + " Mbps at " + inr(rec.price) + '/mo in ' + state.locality.name + '</h3><p>' +
+      PRESETS[state.preset].why + " Coverage here: " + (state.locality.cov[rec.isp]===3 ? "strong" : state.locality.cov[rec.isp]===2 ? "available, building-dependent" : "limited") +
+      ". 12-month true cost: <b>" + inr(rec.price*1.18*12 + ISP[rec.isp].install) + "</b> incl. GST" +
+      (ISP[rec.isp].install ? " and " + inr(ISP[rec.isp].install) + " installation" : "") + ".</p></div>";
+  } else {
+    $("verdict").innerHTML = '<span class="badge">NO MATCH</span><div><h3>Nothing fits those filters</h3><p>Raise the budget or turn off the OTT filter. Bengaluru\u2019s cheapest 100 Mbps plans start at ₹699/mo.</p></div>';
+  }
+  /* cards */
+  if(!list.length){
+    $("planGrid").innerHTML = '<div class="empty" style="grid-column:1/-1">No plans under ' + inr(state.budget) + '/mo with those settings. The next tier up starts at ₹999/mo.</div>';
+  } else {
+    $("planGrid").innerHTML = list.map(function(p){
+      var isBest = rec && p.id===rec.id;
+      var strongHere = (state.locality.cov[p.isp]||0)===3;
+      return '<article class="plan' + (isBest?' best':'') + '">' +
+        '<div class="plan-top"><span class="isp"><span class="dot" style="background:' + ISP[p.isp].color + '"></span>' + ISP[p.isp].name + '</span>' +
+        (isBest ? '<span class="best-tag">BEST FOR YOU</span>' : (strongHere ? '<span class="local-tag">STRONG HERE</span>' : '')) + '</div>' +
+        '<div class="speed">' + p.speed + ' <small>Mbps · ' + p.plan + '</small></div>' +
+        '<div class="price"><span class="amt">' + inr(p.price) + '</span><span class="per">/month ex-GST</span><span class="rpm">' + inr(rpm(p)) + '/Mbps</span></div>' +
+        '<ul class="facts">' +
+        '<li>Data: <b>' + p.data + '</b></li>' +
+        '<li>OTT: <b>' + p.ott + '</b></li>' +
+        '<li>Router: <b>' + p.router + '</b> · Coverage in ' + state.locality.name + ': ' + stars(state.locality.cov[p.isp]||0) + '</li>' +
+        '</ul>' +
+        '<button type="button" data-calc="' + p.id + '">True cost of this plan</button>' +
+        '</article>';
+    }).join("");
+    var btns = document.querySelectorAll("[data-calc]");
+    for(var i=0;i<btns.length;i++){ btns[i].addEventListener("click", function(){ state.calcId = this.getAttribute("data-calc"); $("calcPlan").value = state.calcId; renderCalc(); document.getElementById("calc-h").scrollIntoView({behavior:"smooth", block:"start"}); }); }
+  }
+  /* value bars */
+  var sorted = PLANS.slice().sort(function(a,b){ return rpm(a)-rpm(b); });
+  var max = rpm(sorted[sorted.length-1]);
+  $("valueBars").innerHTML = sorted.map(function(p){
+    var w = Math.max(4, (1 - rpm(p)/max) * 100);
+    return '<div class="bar-row"><span>' + ISP[p.isp].name + " " + p.speed + ' Mbps</span><span class="bar-track"><span class="bar-fill" style="display:block;width:' + w + '%;background:' + ISP[p.isp].color + '"></span></span><span class="val">' + inr(rpm(p)) + '/Mbps</span></div>';
+  }).join("") + '<p class="note" style="margin:12px 0 0">Bar length shows relative value (longer = cheaper per Mbps). ACT\u2019s ₹4.5/Mbps at 300 Mbps and Jio\u2019s ₹4.0/Mbps at 1 Gbps are the value ceiling; sub-100 Mbps plans cost the most per unit of speed.</p>';
+  renderCalc();
+}
+function renderCalc(){
+  var p = PLANS.filter(function(x){ return x.id===state.calcId; })[0] || PLANS[0];
+  var gst = p.price * 0.18, monthly = p.price + gst, install = ISP[p.isp].install;
+  $("calcTable").innerHTML =
+    '<tr><td colspan="2" style="font-weight:700;font-size:16px">' + ISP[p.isp].name + " · " + p.plan + " (" + p.speed + ' Mbps)</td></tr>' +
+    '<tr><td>Monthly plan (ex-GST)</td><td>' + inr(p.price) + '</td></tr>' +
+    '<tr><td>GST @ 18%</td><td>' + inr(gst) + '</td></tr>' +
+    '<tr><td>You actually pay / month</td><td>' + inr(monthly) + '</td></tr>' +
+    '<tr><td>Installation (one-time)</td><td>' + (install ? inr(install) : "₹0") + '</td></tr>' +
+    '<tr><td>First 6 months, all-in</td><td>' + inr(monthly*6 + install) + '</td></tr>' +
+    '<tr><td>First 12 months, all-in</td><td>' + inr(monthly*12 + install) + '</td></tr>';
+}
+function renderLocality(){
+  var sel = $("locality");
+  sel.innerHTML = LOCALITIES.map(function(l,i){ return '<option value="' + i + '"' + (i===0?' selected':'') + '>' + l.name + '</option>'; }).join("");
+  updateLocalityNote();
+  sel.addEventListener("change", function(){ state.locality = LOCALITIES[Number(sel.value)]; updateLocalityNote(); render(); });
+}
+function updateLocalityNote(){
+  var l = state.locality;
+  $("localityNote").innerHTML = '<span class="tier">' + l.tier + '</span><div>' + l.note + '</div>' +
+    '<div style="margin-top:8px;font-size:13px">ACT ' + stars(l.cov.act) + ' &nbsp; Airtel ' + stars(l.cov.airtel) + ' &nbsp; Jio ' + stars(l.cov.jio) + '</div>';
+}
+function renderCoverage(){
+  var all = LOCALITIES.concat(COV_EXTRA);
+  $("covGrid").innerHTML = all.map(function(l){
+    var rows = ["act","airtel","jio","bsnl","hathway"].map(function(k){
+      return '<div class="cov-row"><span>' + ISP[k].name + '</span>' + stars(l.cov[k]||0) + '</div>';
+    }).join("");
+    return '<div class="cov-card"><h3>' + l.name + '</h3><div class="area">' + (l.tier || l.area || "") + '</div>' + rows + '<p class="note" style="margin:10px 0 0">' + l.note + '</p></div>';
+  }).join("");
+}
+function renderProblems(){
+  $("probList").innerHTML = PROBLEMS.map(function(p){
+    return '<article class="prob"><div class="num">' + p.n + '</div>' +
+      '<div><h3>' + p.title + '</h3><p>' + p.reddit + '</p><span class="src">' + p.src + '</span></div>' +
+      '<div class="build"><p><b>The build:</b> ' + p.build + '</p></div>' +
+      '<div class="ship"><span class="status ' + p.status + '">' + p.statusLabel + '</span><br><a class="repo" href="https://github.com/Tanush-7" target="_blank" rel="noopener">github.com/Tanush-7/' + p.repo + '</a></div>' +
+      '</article>';
+  }).join("");
+}
+/* wire controls */
+document.querySelectorAll("#presetChips .chip").forEach(function(ch){
+  ch.addEventListener("click", function(){
+    document.querySelectorAll("#presetChips .chip").forEach(function(c){ c.setAttribute("aria-pressed","false"); });
+    ch.setAttribute("aria-pressed","true");
+    state.preset = ch.getAttribute("data-preset");
+    render();
+  });
+});
+$("budget").addEventListener("input", function(){ state.budget = Number(this.value); $("budgetVal").textContent = inr(state.budget); render(); });
+$("sort").addEventListener("change", function(){ state.sort = this.value; render(); });
+$("ottOnly").addEventListener("change", function(){ state.ottOnly = this.checked; render(); });
+$("calcPlan").innerHTML = PLANS.map(function(p){ return '<option value="' + p.id + '">' + ISP[p.isp].name + " · " + p.speed + " Mbps · " + inr(p.price) + '/mo</option>'; }).join("");
+$("calcPlan").value = state.calcId;
+$("calcPlan").addEventListener("change", function(){ state.calcId = this.value; renderCalc(); });
+$("copyBtn").addEventListener("click", function(){
+  var f = filtered(), rec = recommend(f.list.length ? f.list : PLANS);
+  var top = (f.list.length ? f.list : PLANS).slice(0,3);
+  var text = "Broadband shortlist for " + state.locality.name + ", Bengaluru (" + PRESETS[state.preset].label + "):\n" +
+    top.map(function(p,i){ return (i+1) + ". " + ISP[p.isp].name + " " + p.speed + " Mbps, " + inr(p.price) + "/mo ex-GST (" + inr(rpm(p)) + "/Mbps), data: " + p.data + ", OTT: " + p.ott; }).join("\n") +
+    (rec ? "\nPick: " + ISP[rec.isp].name + " " + rec.speed + " Mbps. 12-month true cost " + inr(rec.price*1.18*12 + ISP[rec.isp].install) + " incl. GST." : "") +
+    "\nSnapshot 9 Nov 2026, verify price for your pincode before paying.";
+  function done(){ $("copyMsg").textContent = "Copied. Paste it anywhere."; }
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done, function(){ $("copyMsg").textContent = text; }); }
+  else { $("copyMsg").textContent = text; }
+});
+renderLocality();
+renderCoverage();
+renderProblems();
+render();
+</script>
+</body>
+</html>
